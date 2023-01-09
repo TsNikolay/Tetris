@@ -1,29 +1,25 @@
 body {
-    margin: 0;
-    background-image: url(images/Background.png);
-    background-size:cover;
-    background-position: center;
-    overflow: hidden;
-    
+  margin: 0;
+  background-image: url(images/Background.png);
+  background-size: cover;
+  background-position: center;
+  overflow: hidden;
 }
 
 #root {
-    padding: 3rem;
-    text-align: center; 
+  padding: 3rem;
+  text-align: center;
 }
 
 #root h1 {
-    font-family: Bungee;
-    color: orange;
+  font-family: Bungee;
+  color: orange;
 }
 
 #root canvas {
-   
-    border: 4px solid orange;
-    border-radius: 3%;
-    width: 27%;
-    display: block;
-    margin: 0 auto;
-    
-    
+  border: 4px solid orange;
+  border-radius: 3%;
+  width: 27%;
+  display: block;
+  margin: 0 auto;
 }
