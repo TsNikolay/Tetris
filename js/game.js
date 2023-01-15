@@ -1,8 +1,7 @@
-import Config from "./config.js";
+import { config } from "./config.js";
 
 export default class Game {
   constructor() {
-    this.config = new Config();
     this.restartProperties();
   }
 
@@ -59,6 +58,7 @@ export default class Game {
         tempRotate[x][y] = shape[shape.length - y - 1][x];
       }
     }
+
     this.activeFigure.shape = tempRotate;
 
     if (this.hasCollision()) {
@@ -69,9 +69,9 @@ export default class Game {
   createPlayfield() {
     const playfield = [];
 
-    for (let y = 0; y < this.config.rows; y++) {
+    for (let y = 0; y < config.rows; y++) {
       playfield[y] = [];
-      for (let x = 0; x < this.config.columns; x++) {
+      for (let x = 0; x < config.columns; x++) {
         playfield[y][x] = 0;
       }
     }
@@ -85,11 +85,11 @@ export default class Game {
       shape: [],
     };
 
-    const figureIndex = Math.floor( Math.random() * this.config.figureTypes.length);
-    const type = this.config.figureTypes[figureIndex];
+    const figureIndex = Math.floor(Math.random() * config.figureTypes.length);
+    const type = config.figureTypes[figureIndex];
 
-    figure.shape = this.config.figures[`${type}`];
-    figure.x = Math.floor((this.config.columns - figure.shape[0].length) / 2); // "2" для знаходження середини поля
+    figure.shape = config.figures[`${type}`];
+    figure.x = Math.floor((config.columns - figure.shape[0].length) / 2); // "2" для знаходження середини поля
 
     return figure;
   }
@@ -100,10 +100,7 @@ export default class Game {
     const shape = activeFigure.shape;
 
     for (let y = 0; y < this.playfield.length; y++) {
-      playfield[y] = [];
-      for (let x = 0; x < this.playfield[y].length; x++) {
-        playfield[y][x] = this.playfield[y][x];
-      }
+      playfield[y] = [...this.playfield[y]];
     }
 
     for (let y = 0; y < shape.length; y++) {
@@ -131,7 +128,7 @@ export default class Game {
 
   updateScore(clearedLines) {
     if (clearedLines > 0) {
-      this.score += this.config.points[clearedLines] * (this.level + 1);
+      this.score += config.points[clearedLines] * (this.level + 1);
       this.lines += clearedLines;
     }
   }
@@ -139,24 +136,24 @@ export default class Game {
   clearLines() {
     let lines = [];
 
-    for (let y = this.config.rows - 1; y >= 0; y--) {
+    for (let y = config.rows - 1; y >= 0; y--) {
       let blocksNumber = 0;
-      for (let x = 0; x < this.config.columns; x++) {
+      for (let x = 0; x < config.columns; x++) {
         if (this.playfield[y][x]) {
           blocksNumber++;
         }
       }
 
       if (blocksNumber === 0) break;
-      else if (blocksNumber < this.config.columns) continue;
-      else if (blocksNumber === this.config.columns) {
+      else if (blocksNumber < config.columns) continue;
+      else if (blocksNumber === config.columns) {
         lines.unshift(y);
       }
     }
 
     for (let index of lines) {
       this.playfield.splice(index, 1);
-      this.playfield.unshift(new Array(this.config.columns).fill(0));
+      this.playfield.unshift(new Array(config.columns).fill(0));
     }
 
     return lines.length;
@@ -173,12 +170,23 @@ export default class Game {
         figureY = activeFigure.y + y;
         figureX = activeFigure.x + x;
 
-        if (
-          activeFigure.shape[y][x] &&
-          (playfield[figureY] === undefined ||
-          playfield[figureY][figureX] === undefined ||
-          playfield[figureY][figureX])
-        ) {
+        function isFigureExist() {
+          return activeFigure.shape[y][x];
+        }
+
+        function isFigureReachedBottom() {
+          return playfield[figureY] === undefined;
+        }
+
+        function isFigureOutOfPlayfield() {
+          return isFigureReachedBottom() || playfield[figureY][figureX] === undefined;
+        }
+
+        function isFigureHasCollision() {
+          return isFigureOutOfPlayfield() || playfield[figureY][figureX];
+        }
+
+        if (isFigureExist() && isFigureHasCollision()) {
           return true;
         }
       }
@@ -191,13 +199,13 @@ export default class Game {
     const shape = this.activeFigure.shape;
     const activeFigure = this.activeFigure;
 
-    for (let y = 0; y < shape.length; y++) {
-      for (let x = 0; x < shape[y].length; x++) {
-        if (shape[y][x]) {
+    shape.forEach((row, y) => {
+      row.forEach((cell, x) => {
+        if (cell) {
           this.playfield[activeFigure.y + y][activeFigure.x + x] = shape[y][x];
         }
-      }
-    }
+      });
+    });
   }
 
   get level() {

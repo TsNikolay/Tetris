@@ -50,7 +50,10 @@ export default class Controller {
     const multiplier = 100;
     const speed = oneSecond - this.game.getState().level * multiplier;
     if (!this.interval) {
-      this.interval = setInterval( () => this.update(), speed > 0 ? speed : multiplier);
+      this.interval = setInterval(
+        () => this.update(),
+        speed > 0 ? speed : multiplier
+      );
     }
   }
 
@@ -62,10 +65,9 @@ export default class Controller {
   }
 
   handleKeyboardClick(event) {
-    const state = this.game.getState();
-
-    switch (event.keyCode) {
-      case 13:
+    const keyCodeToAction = {
+      13: () => {
+        const state = this.game.getState();
         if (state.isGameOver) {
           this.restart();
         } else if (this.isPlaying) {
@@ -73,35 +75,39 @@ export default class Controller {
         } else {
           this.play();
         }
-        break;
+      },
 
-      case 32:
+      32: () => {
         game.rotateFigure();
         this.updateView();
-        break;
+      },
 
-      case 37:
+      37: () => {
         game.moveFigureLeft();
         this.updateView();
-        break;
+      },
 
-      case 39:
+      39: () => {
         game.moveFigureRight();
         this.updateView();
-        break;
-      case 40:
+      },
+
+      40: () => {
         this.stopTimer();
         game.moveFigureDown();
         this.updateView();
-        break;
+      },
+    };
+
+    const action = keyCodeToAction[event.keyCode];
+    if (action) {
+      action();
     }
   }
 
   handleKeyboardUp(event) {
-    switch (event.keyCode) {
-      case 40:
-        this.startTimer();
-        break;
+    if (event.keyCode == 40) {
+      this.startTimer();
     }
   }
 }
